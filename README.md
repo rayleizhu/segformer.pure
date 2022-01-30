@@ -6,7 +6,7 @@ This is a cleaned version of [official SegFormer](https://github.com/NVlabs/SegF
 
 * pytorch>=1.0
 * timm>=0.5.4
-* gdown (optional, only required if you want automatically load official checkpoints from url)
+* gdown (optional, only required if you want to automatically load official checkpoints from url)
 
 
 ## Features
@@ -15,7 +15,7 @@ This is a cleaned version of [official SegFormer](https://github.com/NVlabs/SegF
 - [x] compatiable with officially released model weights
     - [SegFormer weights](https://drive.google.com/drive/folders/1GAku0G0iR9DsBxCbfENWMJ27c5lYUeQA)
     - [MixVisionTransformer weights](https://drive.google.com/drive/folders/1b7bwrInTW4VLEm27YawHOAMSMikga2Ia) (TBA)
-- [x] automatically downloading official checkpoints online
+- [x] automatically downloads official checkpoints online
 
 Example usage:
 
