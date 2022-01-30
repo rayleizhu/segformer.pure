@@ -1,6 +1,6 @@
 
 
-This is a cleaned version of [official SegFormer](https://github.com/NVlabs/SegFormer). It removes depency on MMCV and MMSegmentation, which use deep wrapings.
+This is a cleaned version of [official SegFormer](https://github.com/NVlabs/SegFormer). It removes dependency on MMCV and MMSegmentation, which use deep wrapings.
 
 ## Requirements
 
