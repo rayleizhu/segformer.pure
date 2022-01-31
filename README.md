@@ -30,14 +30,19 @@ model1.load_official_state_dict('segformer.b0.512x512.ade.160k.pth', strict=True
 model2 = SegFormerB0(num_classes=1, encoder_weight=None) # binary classifier
 model2.load_official_state_dict('segformer.b0.512x512.ade.160k.pth', strict=False) # the final prediction layer is not loaded
 
-model3 = SegFormerB0(num_classes=20, encoder_weight='imagenet') # load only ImageNet-pretained backbone
+model3 = SegFormerB1(num_classes=20, encoder_weight='imagenet') # load only ImageNet-pretained backbone
 
 x = torch.zeros((2, 3, 512, 512))
 pred = model3(x)
 print(pred.size()) # final resolution is (h/4, w/4)
+
+
+model4 = SegFormerB1(in_ch=6, num_classes=20, encoder_weight='imagenet') # change input channels
+x = torch.zeros((2, 6, 512, 512))
+y = model4(x)
 ```
 
 ## TODOs
 
 - [x] MixVisionTransformer.load_official_state_dict()
-- [ ] Flexible input channels for ImageNet pretained MiT()
+- [x] Flexible input channels for ImageNet pretained MiT()

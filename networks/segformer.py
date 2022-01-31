@@ -29,7 +29,7 @@ __all__ = [
 
 
 
-def _get_encoder_from_name(name:str, weight=None)->nn.Module:
+def _get_encoder_from_name(name:str, weight=None, in_ch=3)->nn.Module:
     if name == 'mit_b0':
         model = MiTB0()
     elif name == 'mit_b1':
@@ -48,6 +48,9 @@ def _get_encoder_from_name(name:str, weight=None)->nn.Module:
     if weight is not None:
         assert weight == 'imagenet', "only imagenet pretrained weight is available currently!"
         model.load_official_state_dict(name+'.pth')
+    
+    if in_ch != 3:
+        model.reset_input_channel(new_in_chans=in_ch, pretrained=(weight is not None))
 
     return model
 
@@ -55,7 +58,8 @@ def _get_encoder_from_name(name:str, weight=None)->nn.Module:
 
 class SegFormer(nn.Module):
     official_ckpts = {}
-    def __init__(self, encoder_name:str='mit_b0',
+    def __init__(self, in_ch=3,
+               encoder_name:str='mit_b0',
                encoder_weight:str=None,
                in_channels=[32, 64, 160, 256],
                in_index=[0, 1, 2, 3],
@@ -64,7 +68,7 @@ class SegFormer(nn.Module):
                num_classes=19,
                embedding_dim=256):
         super(SegFormer, self).__init__()
-        self.backbone = _get_encoder_from_name(encoder_name, weight=encoder_weight)
+        self.backbone = _get_encoder_from_name(encoder_name, weight=encoder_weight, in_ch=in_ch)
         self.decode_head = SegFormerHead(num_classes=num_classes,
                                      in_index=in_index,
                                      in_channels=in_channels,
@@ -120,8 +124,9 @@ class SegFormerB0(SegFormer):
         "segformer.b0.512x512.ade.160k.pth": "https://drive.google.com/uc?export=download&id=1je1GL6TXU3U-cZZsUv08ITUkVW4mBPYy",
         "segformer.b0.1024x1024.city.160k.pth": "https://drive.google.com/uc?export=download&id=10lD5u0xVDJDKkIYxJDWkSeA2mfK_tgh9"
     }
-    def __init__(self, num_classes:int, encoder_weight: str = None):
-        super(SegFormerB0, self).__init__(num_classes=num_classes,
+    def __init__(self, num_classes:int, in_ch=3, encoder_weight: str = None):
+        super(SegFormerB0, self).__init__(in_ch=in_ch,
+                                          num_classes=num_classes,
                                           encoder_weight=encoder_weight,
                                           encoder_name='mit_b0',
                                           in_channels=[32, 64, 160, 256],
@@ -136,8 +141,9 @@ class SegFormerB1(SegFormer):
         "segformer.b1.512x512.ade.160k.pth": "https://drive.google.com/uc?export=download&id=1PNaxIg3gAqtxrqTNsYPriR2c9j68umuj",
         "segformer.b1.1024x1024.city.160k.pth": "https://drive.google.com/uc?export=download&id=1sSdiqRsRMhLJCfs0SydF7iKgeQNcXDZj"
     }
-    def __init__(self, num_classes:int, encoder_weight: str = None):
-        super(SegFormerB1, self).__init__(num_classes=num_classes,
+    def __init__(self, num_classes:int, in_ch=3, encoder_weight: str = None):
+        super(SegFormerB1, self).__init__(in_ch=in_ch,
+                                          num_classes=num_classes,
                                           encoder_weight=encoder_weight,
                                           encoder_name='mit_b1',
                                           in_channels=[64, 128, 320, 512],
@@ -152,8 +158,9 @@ class SegFormerB2(SegFormer):
         "segformer.b2.512x512.ade.160k.pth": "https://drive.google.com/uc?export=download&id=13AMcdZYePbrTtwVzdJwZP5PF8PKehGhU",
         "segformer.b2.1024x1024.city.160k.pth": "https://drive.google.com/uc?export=download&id=1MZhqvWDOKdo5rBPC2sL6kWL25JpxOg38"
     }
-    def __init__(self, num_classes:int, encoder_weight: str = None):
-        super(SegFormerB2, self).__init__(num_classes=num_classes,
+    def __init__(self, num_classes:int, in_ch=3, encoder_weight: str = None):
+        super(SegFormerB2, self).__init__(in_ch=in_ch,
+                                          num_classes=num_classes,
                                           encoder_weight=encoder_weight,
                                           encoder_name='mit_b2',
                                           in_channels=[64, 128, 320, 512],
@@ -168,8 +175,9 @@ class SegFormerB3(SegFormer):
         "segformer.b3.512x512.ade.160k.pth": "https://drive.google.com/uc?export=download&id=16ILNDrZrQRJrXsIcSjUC56ueR72Rlant",
         "segformer.b3.1024x1024.city.160k.pth": "https://drive.google.com/uc?export=download&id=1dc1YM2b3844-dLKq0qe77qb9_7brReIF"
     }
-    def __init__(self, num_classes:int, encoder_weight: str = None):
-        super(SegFormerB3, self).__init__(num_classes=num_classes,
+    def __init__(self, num_classes:int, in_ch=3, encoder_weight: str = None):
+        super(SegFormerB3, self).__init__(in_ch=in_ch,
+                                          num_classes=num_classes,
                                           encoder_weight=encoder_weight,
                                           encoder_name='mit_b3',
                                           in_channels=[64, 128, 320, 512],
@@ -185,8 +193,9 @@ class SegFormerB4(SegFormer):
         "segformer.b5.512x512.ade.160k.pth": "https://drive.google.com/uc?export=download&id=171YHhri1rT5lwxmfPW76eU9DPP9OR27n",
         "segformer.b5.1024x1024.city.160k.pth": "https://drive.google.com/uc?export=download&id=1F9QqGFzhr5wdX-FWax1xE2l7B8lqs42s"
     }
-    def __init__(self, num_classes:int, encoder_weight: str = None):
-        super(SegFormerB4, self).__init__(num_classes=num_classes,
+    def __init__(self, num_classes:int, in_ch=3, encoder_weight: str = None):
+        super(SegFormerB4, self).__init__(in_ch=in_ch,
+                                          num_classes=num_classes,
                                           encoder_weight=encoder_weight,
                                           encoder_name='mit_b4',
                                           in_channels=[64, 128, 320, 512],
@@ -203,8 +212,9 @@ class SegFormerB5(SegFormer):
         "segformer.b5.640x640.ade.160k.pth": "https://drive.google.com/uc?export=download&id=11F7GHP6F8S9nUOf_KDvg8pouDEFEBGYz",
         "segformer.b5.1024x1024.city.160k.pth": "https://drive.google.com/uc?export=download&id=1z3eFf-xVMkcb1Nmcibv6Ut-lTh81RLgO"
     }
-    def __init__(self, num_classes:int, encoder_weight: str = None):
-        super(SegFormerB5, self).__init__(num_classes=num_classes,
+    def __init__(self, num_classes:int, in_ch=3, encoder_weight: str = None):
+        super(SegFormerB5, self).__init__(in_ch=in_ch,
+                                          num_classes=num_classes,
                                           encoder_weight=encoder_weight,
                                           encoder_name='mit_b5',
                                           in_channels=[64, 128, 320, 512],

@@ -390,6 +390,30 @@ class MixVisionTransformer(nn.Module):
         # ckpt_to_load = {k:v for k, v in state_dict.items() if k not in exclude_keys}
         self.load_state_dict(ckpt, strict=strict)
 
+    
+    def reset_input_channel(self, new_in_chans, pretrained=True):
+        """
+        this function can be used to change the input channels for a pretrained model.
+        the weights of first conv layer are cyclicaly copied.
+        see https://stackoverflow.com/questions/62629114/how-to-modify-resnet-50-with-4-channels-as-input-using-pre-trained-weights-in-py
+        and https://github.com/qubvel/segmentation_models.pytorch/blob/master/segmentation_models_pytorch/encoders/_utils.py
+        """
+        # pass
+        weight = self.patch_embed1.proj.weight.detach()
+        # bias = self.patch_embed1.proj.bias.detach()
+        embed_dim = self.patch_embed1.proj.out_channels
+        kernel_size = self.patch_embed1.proj.kernel_size
+        stride = self.patch_embed1.proj.stride
+        padding = self.patch_embed1.proj.padding
+        self.patch_embed1.proj = nn.Conv2d(new_in_chans, embed_dim, kernel_size=kernel_size, stride=stride,
+                                           padding=padding)
+        
+        if pretrained:
+            for ch in range(new_in_chans):
+                self.patch_embed1.proj.weight.data[:, ch, :, :] = weight[:, ch%3, :, :]
+            # self.patch_embed1.proj.bias.data[:, ch, :, :] = weight[:, ch%3, :, :]
+        
+
 
 
 class DWConv(nn.Module):
