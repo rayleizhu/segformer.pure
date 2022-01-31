@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from typing import List
 
-from .mit import mit_b0, mit_b1, mit_b2, mit_b3, mit_b4, mit_b5
+from .mit import MiTB0, MiTB1, MiTB2, MiTB3, MiTB4, MiTB5
 from .head import SegFormerHead
 
 from torch.hub import load_state_dict_from_url
@@ -30,21 +30,26 @@ __all__ = [
 
 
 def _get_encoder_from_name(name:str, weight=None)->nn.Module:
-    # TODO: use pretrained weights
     if name == 'mit_b0':
-        return mit_b0()
+        model = MiTB0()
     elif name == 'mit_b1':
-        return mit_b1()
+        model = MiTB1()
     elif name == 'mit_b2':
-        return mit_b2()
+        model = MiTB2()
     elif name == 'mit_b3':
-        return mit_b3()
+        model = MiTB3()
     elif name == 'mit_b4':
-        return mit_b4()
+        model = MiTB4()
     elif name == 'mit_b5':
-        return mit_b5()
+        model = MiTB5()
     else:
         raise ValueError(f'Unsupported encoder name {name}!')
+    
+    if weight is not None:
+        assert weight == 'imagenet', "only imagenet pretrained weight is available currently!"
+        model.load_official_state_dict(name+'.pth')
+
+    return model
 
 
 

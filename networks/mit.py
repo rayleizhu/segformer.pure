@@ -13,6 +13,7 @@ from timm.models.layers import DropPath, to_2tuple, trunc_normal_
 # from mmseg.utils import get_root_logger
 # from mmcv.runner import load_checkpoint
 import math
+import os
 
 
 class Mlp(nn.Module):
@@ -199,6 +200,7 @@ class OverlapPatchEmbed(nn.Module):
 
 
 class MixVisionTransformer(nn.Module):
+    official_ckpts = {}
     def __init__(self, img_size=224, patch_size=16, in_chans=3, num_classes=1000, embed_dims=[64, 128, 256, 512],
                  num_heads=[1, 2, 4, 8], mlp_ratios=[4, 4, 4, 4], qkv_bias=False, qk_scale=None, drop_rate=0.,
                  attn_drop_rate=0., drop_path_rate=0., norm_layer=nn.LayerNorm,
@@ -351,6 +353,43 @@ class MixVisionTransformer(nn.Module):
         # x = self.head(x)
 
         return x
+    
+
+    def load_official_state_dict(self, filename:str, local_dir:str=None, download:bool=True, strict:bool=False):
+        """
+        Args:
+            local_dir: if not None, load from "local_dir/filename"
+            strict: note that, the definition is silghtly different from load_state_dict().
+                    If set to flase, the weight of final layer will not be loaded, so num_classes can be any.
+        """
+
+        assert filename in self.official_ckpts.keys(), \
+             f"available checkpoints are {self.official_ckpts.keys()}"
+
+        if local_dir is None:
+            local_dir = os.path.join(os.path.expanduser('~'), '.cache', 'torch', 'checkpoints')
+        
+        path = os.path.join(local_dir, filename)
+        if os.path.isfile(path):
+            ckpt = torch.load(path, map_location='cpu')
+        elif download:
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            import gdown
+            url = self.official_ckpts[filename]
+            gdown.download(url, path, quiet=False)
+            ckpt = torch.load(path, map_location='cpu')
+            # ckpt = load_state_dict_from_url(url, progress=True, file_name=filename, model_dir=local_dir)
+        else: 
+            raise ValueError('You neither proivde local path nor set download True!')
+        
+        # state_dict = ckpt['state_dict']
+        # # exclude_keys = ["decode_head.conv_seg.weight", "decode_head.conv_seg.bias"]
+        # # if not strict:
+        # #     exclude_keys += ["decode_head.linear_pred.weight", "decode_head.linear_pred.bias"]
+        # exclude_keys = []
+        # ckpt_to_load = {k:v for k, v in state_dict.items() if k not in exclude_keys}
+        self.load_state_dict(ckpt, strict=strict)
+
 
 
 class DWConv(nn.Module):
@@ -369,54 +408,60 @@ class DWConv(nn.Module):
 
 
 # @BACKBONES.register_module()
-class mit_b0(MixVisionTransformer):
+class MiTB0(MixVisionTransformer):
+    official_ckpts = {'mit_b0.pth': "https://drive.google.com/uc?export=download&id=1EyaZVdbezIJsj8LviM7GaIBto46a1N-Z"}
     def __init__(self, **kwargs):
-        super(mit_b0, self).__init__(
+        super(MiTB0, self).__init__(
             patch_size=4, embed_dims=[32, 64, 160, 256], num_heads=[1, 2, 5, 8], mlp_ratios=[4, 4, 4, 4],
             qkv_bias=True, norm_layer=partial(nn.LayerNorm, eps=1e-6), depths=[2, 2, 2, 2], sr_ratios=[8, 4, 2, 1],
             drop_rate=0.0, drop_path_rate=0.1)
 
 
 # @BACKBONES.register_module()
-class mit_b1(MixVisionTransformer):
+class MiTB1(MixVisionTransformer):
+    official_ckpts = {'mit_b1.pth': "https://drive.google.com/uc?export=download&id=1L8NYh3LOSGf7xNm7TsZVXURbYYfeJVKh"}
     def __init__(self, **kwargs):
-        super(mit_b1, self).__init__(
+        super(MiTB1, self).__init__(
             patch_size=4, embed_dims=[64, 128, 320, 512], num_heads=[1, 2, 5, 8], mlp_ratios=[4, 4, 4, 4],
             qkv_bias=True, norm_layer=partial(nn.LayerNorm, eps=1e-6), depths=[2, 2, 2, 2], sr_ratios=[8, 4, 2, 1],
             drop_rate=0.0, drop_path_rate=0.1)
 
 
 # @BACKBONES.register_module()
-class mit_b2(MixVisionTransformer):
+class MiTB2(MixVisionTransformer):
+    official_ckpts = {'mit_b2.pth': "https://drive.google.com/uc?export=download&id=1m8fsG812o6KotF1NVo0YuiSfSn18TAOA"}
     def __init__(self, **kwargs):
-        super(mit_b2, self).__init__(
+        super(MiTB2, self).__init__(
             patch_size=4, embed_dims=[64, 128, 320, 512], num_heads=[1, 2, 5, 8], mlp_ratios=[4, 4, 4, 4],
             qkv_bias=True, norm_layer=partial(nn.LayerNorm, eps=1e-6), depths=[3, 4, 6, 3], sr_ratios=[8, 4, 2, 1],
             drop_rate=0.0, drop_path_rate=0.1)
 
 
 # @BACKBONES.register_module()
-class mit_b3(MixVisionTransformer):
+class MiTB3(MixVisionTransformer):
+    official_ckpts = {'mit_b3.pth': "https://drive.google.com/uc?export=download&id=1d3wU8KNjPL4EqMCIEO_rO-O3-REpG82T"}
     def __init__(self, **kwargs):
-        super(mit_b3, self).__init__(
+        super(MiTB3, self).__init__(
             patch_size=4, embed_dims=[64, 128, 320, 512], num_heads=[1, 2, 5, 8], mlp_ratios=[4, 4, 4, 4],
             qkv_bias=True, norm_layer=partial(nn.LayerNorm, eps=1e-6), depths=[3, 4, 18, 3], sr_ratios=[8, 4, 2, 1],
             drop_rate=0.0, drop_path_rate=0.1)
 
 
 # @BACKBONES.register_module()
-class mit_b4(MixVisionTransformer):
+class MiTB4(MixVisionTransformer):
+    official_ckpts = {'mit_b4.pth': "https://drive.google.com/uc?export=download&id=1BUtU42moYrOFbsMCE-LTTkUE-mrWnfG2"}
     def __init__(self, **kwargs):
-        super(mit_b4, self).__init__(
+        super(MiTB4, self).__init__(
             patch_size=4, embed_dims=[64, 128, 320, 512], num_heads=[1, 2, 5, 8], mlp_ratios=[4, 4, 4, 4],
             qkv_bias=True, norm_layer=partial(nn.LayerNorm, eps=1e-6), depths=[3, 8, 27, 3], sr_ratios=[8, 4, 2, 1],
             drop_rate=0.0, drop_path_rate=0.1)
 
 
 # @BACKBONES.register_module()
-class mit_b5(MixVisionTransformer):
+class MiTB5(MixVisionTransformer):
+    official_ckpts = {'mit_b5.pth': "https://drive.google.com/uc?export=download&id=1d7I50jVjtCddnhpf-lqj8-f13UyCzoW1"}
     def __init__(self, **kwargs):
-        super(mit_b5, self).__init__(
+        super(MiTB5, self).__init__(
             patch_size=4, embed_dims=[64, 128, 320, 512], num_heads=[1, 2, 5, 8], mlp_ratios=[4, 4, 4, 4],
             qkv_bias=True, norm_layer=partial(nn.LayerNorm, eps=1e-6), depths=[3, 6, 40, 3], sr_ratios=[8, 4, 2, 1],
             drop_rate=0.0, drop_path_rate=0.1)

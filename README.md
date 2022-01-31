@@ -14,7 +14,7 @@ This is a cleaned version of [official SegFormer](https://github.com/NVlabs/SegF
 - [x] written with pure pytorch api, no deep wraping, easy to understand, modification friendly
 - [x] compatiable with officially released model weights
     - [SegFormer weights](https://drive.google.com/drive/folders/1GAku0G0iR9DsBxCbfENWMJ27c5lYUeQA)
-    - [MixVisionTransformer weights](https://drive.google.com/drive/folders/1b7bwrInTW4VLEm27YawHOAMSMikga2Ia) (TBA)
+    - [MixVisionTransformer weights](https://drive.google.com/drive/folders/1b7bwrInTW4VLEm27YawHOAMSMikga2Ia)
 - [x] automatically downloading official checkpoints online
 
 Example usage:
@@ -39,4 +39,5 @@ print(pred.size()) # final resolution is (h/4, w/4)
 
 ## TODOs
 
-- [ ] MixVisionTransformer.load_official_state_dict()
+- [x] MixVisionTransformer.load_official_state_dict()
+- [ ] Flexible input channels for ImageNet pretained MiT()
